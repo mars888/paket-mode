@@ -265,11 +265,17 @@ it cannot be found, we ask the user."
 
 (defconst +paket-mode--dependencies--keywords+
   (list
-   '("\\<\\(redirects\\|framework\\|source\\|copy_local\\)\\>" . font-lock-keyword-face)
+   ;; Comments.
+   '("#.+$" . font-lock-comment-face)
+   ;; Property keywords.
+   '("\\<\\(redirects\\|framework\\|source\\|copy_local\\|nuget\\)\\>" . font-lock-keyword-face)
+   ;; Value keywords.
    '("\\<\\(net45\\|on\\|off\\|true\\|false\\)\\>" . font-lock-variable-name-face)
+   ;; URLs
    '("https?://.[^\s\n]+" . font-lock-string-face)
-   '("\\<nuget\\>" . font-lock-keyword-face)
+   ;; Package specifiers.
    '("^nuget \\([a-zA-Z][a-zA-Z0-9\\.-]+\\)" . (1 font-lock-constant-face))
+   ;; Package version specifiers.
    '("^nuget .+? \\([0-9][\\.0-9]+\\)" . (1 font-lock-type-face))
    ))
 

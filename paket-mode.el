@@ -40,27 +40,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun paket--set-temp-buffer-keys (buffer)
-  "Setup default keys for temp/preview buffer."
-  (let ((map (copy-keymap global-map)))
-    (use-local-map map)
-    (local-set-key (kbd "q") 'kill-buffer-and-window)
-    (when (fboundp 'evil-define-key)
-      (evil-define-key 'normal map "q" 'kill-buffer-and-window))))
+(define-derived-mode paket-interaction-mode special-mode "*PAKET*"
+  "Special mode for Paket interaction buffers"
+  ;; Setup keys to quit buffer.
+  (local-set-key (kbd "q") 'kill-buffer-and-window)
+  (when (fboundp 'evil-define-key)
+    (evil-local-set-key 'normal "q" 'kill-buffer-and-window))
+  ;; Settings
+  (when (not truncate-lines)
+    (toggle-truncate-lines)))
 
 (defun paket--make-temp-buffer (callback-with-buffer)
   "Create a temp buffer and call 'callback-with-buffer' to init its contents."
   (interactive)
   (save-excursion
     (let ((buffer (get-buffer-create "*PAKET*")))
-      (set-buffer buffer)
-      (paket--set-temp-buffer-keys buffer)
-      (erase-buffer)
-      (beginning-of-buffer)
-      (display-buffer-below-selected buffer nil)
-      (select-window (get-buffer-window buffer))
-      (funcall callback-with-buffer buffer)
-      (read-only-mode))))
+      (with-current-buffer buffer
+        (erase-buffer)
+        (paket-interaction-mode)
+        (display-buffer-below-selected buffer nil)
+        (select-window (get-buffer-window buffer))
+        (funcall callback-with-buffer buffer)))))
 
 (defun paket--temp-buffer-text (face contents)
   "Helper for adding fontified text to a buffer."

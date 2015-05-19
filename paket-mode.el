@@ -147,8 +147,16 @@ it cannot be found, we ask the user."
                         (mapconcat 'identity args " ")))) ; List of args, concatenate.
       (paket--make-temp-buffer
        (lambda (buffer)
-         (shell-command (format "%s %s" paket-exe final-args)
-                              buffer buffer))))))
+         ;; (async-shell-command (format "%s %s" paket-exe final-args)
+         ;;                      buffer buffer)
+         (with-current-buffer buffer
+           (let ((inhibit-read-only t))
+             (insert (format "Running: %s\n\n" paket-exe))
+             (set-process-sentinel
+              (start-process "paket" buffer paket-exe final-args)
+              (lambda (proc event)
+                (message "PAKET: %s - %s" proc event)
+                (reposition-window))))))))))
 
 (defun paket-run (args)
   "Run a raw paket command for a project."

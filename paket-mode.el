@@ -75,7 +75,7 @@
   "Try to find the root folder of a project by searching for a .sln file. If
 it cannot be found, we ask the user."
   (if (not (buffer-file-name))
-      (paket--find-project-root--ask)
+      (paket--find-project-root-ask)
     (or (locate-dominating-file (buffer-file-name)
                                 (lambda (directory)
                                   (directory-files directory nil "\\.sln\\'")))

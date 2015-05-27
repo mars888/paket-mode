@@ -177,6 +177,11 @@ it cannot be found, we ask the user."
   (interactive "sPackage name: ")
   (paket--run "add" "nuget" package-name))
 
+(defun paket-restore ()
+  "Run paket restore."
+  (interactive)
+  (paket--run "restore"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Nuget search functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -315,6 +320,7 @@ it cannot be found, we ask the user."
   (let ((map (make-keymap)))
     (define-key map (kbd "C-c C-r") 'paket-run)
     (define-key map (kbd "C-c C-a") 'paket-add)
+    (define-key map (kbd "C-c C-o") 'paket-restore)
     (define-key map (kbd "C-c C-s") 'paket-nuget-search)
     map))
 

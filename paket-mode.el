@@ -141,19 +141,15 @@ it cannot be found, we ask the user."
   "Run a paket command for a project."
   (let ((project-root (paket--find-project-root))
         (paket-exe (paket--find-paket-exe)))
-    (let ((default-directory project-root)
-          (final-args (if (stringp args)
-                          args                            ; String args
-                        (mapconcat 'identity args " ")))) ; List of args, concatenate.
+    (let ((default-directory project-root)) ; List of args, concatenate.
       (paket--make-temp-buffer
        (lambda (buffer)
-         ;; (async-shell-command (format "%s %s" paket-exe final-args)
-         ;;                      buffer buffer)
          (with-current-buffer buffer
            (let ((inhibit-read-only t))
-             (insert (format "Running: %s\n\n" paket-exe))
+             (insert (format "Running: %s %s\n\n" paket-exe args))
              (set-process-sentinel
-              (start-process "paket" buffer paket-exe final-args)
+              (apply 'start-process (append (list "paket" buffer paket-exe)
+                                            args))
               (lambda (proc event)
                 (message "PAKET: %s - %s" proc event)
                 (reposition-window))))))))))
@@ -161,7 +157,8 @@ it cannot be found, we ask the user."
 (defun paket-run (args)
   "Run a raw paket command for a project."
   (interactive "sRun paket with args: ")
-  (paket--run args))
+  (let ((final-args (split-string args)))
+    (apply 'paket--run final-args)))
 
 ;;;###autoload
 (defun paket-init ()

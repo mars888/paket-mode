@@ -24,7 +24,7 @@ Provides a major mode for using Paket on Emacs. Paket is a dependency manager fo
 | paket-install           | C-c C-f | Run paket install to install relevant package into relevant projects.    |
 | paket-nuget-search      | C-c C-s | Search NuGet for packages using a given search string.                   |
 | paket-find-refs         | C-c C-w | Find which projects use a package by searching for the package at point. |
-| paket-init              |         | Run paket init for a project to create the paket.dependencies files      |
-| paket-bootstrap         |         | Download the paket bootstrapper and run it to get the latest paket.exe   |
+| paket-init              |         | Run paket init for a project to create the paket.dependencies files.     |
+| paket-bootstrap         |         | Download the paket bootstrapper and run it to get the latest paket.exe.  |
 | paket-edit-dependencies |         | Open paket.dependencies for editing.                                     |
 | paket-edit-lock         |         | Open paket.lock for editing.                                             |

@@ -349,6 +349,7 @@ it cannot be found, we ask the user."
     (modify-syntax-entry ?_ "w" st)
     ;; Help package specifiers be treated as words:
     (modify-syntax-entry ?. "w" st)
+    (modify-syntax-entry ?- "w" st)
     st))
 
 ;;;###autoload

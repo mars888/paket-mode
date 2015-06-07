@@ -93,6 +93,13 @@ it cannot be found, we ask the user."
                                   (directory-files directory nil "\\.sln\\'")))
         (paket--find-project-root-ask))))
 
+(defun paket--package-at-point ()
+  "Identify the package at-point an return it as a string"
+  ;; Just get thing at point for now, now extra checking is done.
+  ;; Not for valid bounds nor for a valid package.
+  (let ((bounds (bounds-of-thing-at-point 'word)))
+    (buffer-substring-no-properties (car bounds) (cdr bounds))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bootstrapping
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -198,6 +205,12 @@ it cannot be found, we ask the user."
   "Run paket install."
   (interactive)
   (paket--run "install"))
+
+(defun paket-find-refs ()
+  "Run paket find-refs for the package specified at point"
+  (interactive)
+  (let ((package (paket--package-at-point)))
+    (paket--run "find-refs" "nuget" package)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Nuget search functions
@@ -365,8 +378,9 @@ it cannot be found, we ask the user."
     (define-key map (kbd "C-c C-r") 'paket-run)
     (define-key map (kbd "C-c C-a") 'paket-add)
     (define-key map (kbd "C-c C-o") 'paket-restore)
-    (define-key map (kbd "C-c C-f") 'paket-install)
+    (define-key map (kbd "C-c C-f") 'paket-install) ;; Mnemonic: paket fulfill, probably needs something better.
     (define-key map (kbd "C-c C-s") 'paket-nuget-search)
+    (define-key map (kbd "C-c C-w") 'paket-find-refs) ;; Mnemonic: paket where
     map))
 
 (defun paket-mode ()

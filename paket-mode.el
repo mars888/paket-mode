@@ -194,6 +194,11 @@ it cannot be found, we ask the user."
   (interactive)
   (paket--run "restore"))
 
+(defun paket-install ()
+  "Run paket install."
+  (interactive)
+  (paket--run "install"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Nuget search functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -360,6 +365,7 @@ it cannot be found, we ask the user."
     (define-key map (kbd "C-c C-r") 'paket-run)
     (define-key map (kbd "C-c C-a") 'paket-add)
     (define-key map (kbd "C-c C-o") 'paket-restore)
+    (define-key map (kbd "C-c C-f") 'paket-install)
     (define-key map (kbd "C-c C-s") 'paket-nuget-search)
     map))
 

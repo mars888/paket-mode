@@ -292,6 +292,8 @@ it cannot be found, we ask the user."
 (defconst +paket-mode--syntax-table+
   (let ((st (make-syntax-table)))
     (modify-syntax-entry ?_ "w" st)
+    ;; Help package specifiers be treated as words:
+    (modify-syntax-entry ?. "w" st)
     st))
 
 ;;;###autoload

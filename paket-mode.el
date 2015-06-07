@@ -35,7 +35,19 @@
 
 (defvar paket-mode-hook nil)
 
-(add-to-list 'auto-mode-alist '("paket\\.dependencies" . paket-mode))
+(defun paket--init-default-auto-mode-alist ()
+  "Initialize default `auto-mode-alist' hooks for paket related files"
+  ;; paket.dependencies
+  (add-to-list 'auto-mode-alist
+               '("paket\\.dependencies" . paket-mode))
+  ;; paket.lock
+  (add-to-list 'auto-mode-alist
+               '("paket\\.lock" . paket-mode))
+  (add-to-list 'auto-mode-alist
+               '("paket\\.references" . paket-mode)))
+(paket--init-default-auto-mode-alist)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions
@@ -287,7 +299,32 @@ it cannot be found, we ask the user."
    '("^nuget \\([a-zA-Z][a-zA-Z0-9\\.-]+\\)" . (1 font-lock-constant-face))
    ;; Package version specifiers.
    '("^nuget .+? \\([0-9][\\.0-9]+\\(-[a-zA-Z]+\\)?\\)" . (1 font-lock-type-face))
-   ))
+   )
+  "Keyword list for paket.dependencies files")
+
+(defconst +paket-mode--lock--keywords+
+  (list
+   ;; URLs
+   '("https?://.[^\s\n]+" . font-lock-string-face)
+   ;; Property keywords.
+   '("\\<\\(REDIRECTS\\|framework\\|FRAMEWORK\\|remote\\|specs\\|NUGET\\)\\>" . font-lock-keyword-face)
+   ;; Value keywords.
+   '("\\<\\(net45\\|portable\\|wp80\\|win\\|wp81\\|wpa81\\|on\\|off\\|true\\|false\\)\\>" . font-lock-variable-name-face)
+   ;; Package names
+   '("^\s+\\([a-zA-Z0-9-]+\\)\\(\\.\\([a-zA-Z0-9-]\\)+\\)*" . font-lock-constant-face)
+   ;; Package version specifiers.
+   '("(.+)" . font-lock-type-face)
+   )
+  "Keyword list for paket.lock files")
+
+(defconst +paket-mode--references-keywords+
+  (list
+   ;; Comments.
+   '("#.+$" . font-lock-comment-face)
+   ;; Package names.
+   '("^\\([a-zA-Z0-9-]+\\)\\(\\.\\([a-zA-Z0-9-]\\)+\\)*" . font-lock-constant-face)
+   )
+  "Keyword list for paket.references files")
 
 (defconst +paket-mode--syntax-table+
   (let ((st (make-syntax-table)))
@@ -333,7 +370,18 @@ it cannot be found, we ask the user."
   (when (string-match "\\.dependencies$" (buffer-file-name))
     ;; Setup for paket.dependencies
     (set-syntax-table +paket-mode--syntax-table+)
-    (set (make-local-variable 'font-lock-defaults) '(+paket-mode--dependencies--keywords+)))
+    (set (make-local-variable 'font-lock-defaults)
+         '(+paket-mode--dependencies--keywords+)))
+  (when (string-match "\\.lock$" (buffer-file-name))
+    ;; Setup for paket.lock
+    (set-syntax-table +paket-mode--syntax-table+)
+    (set (make-local-variable 'font-lock-defaults)
+         '(+paket-mode--lock--keywords+)))
+  (when (string-match "\\.references$" (buffer-file-name))
+    ;; Setup for paket.references
+    (set-syntax-table +paket-mode--syntax-table+)
+    (set (make-local-variable 'font-lock-defaults)
+         '(+paket-mode--references-keywords+)))
   (setq major-mode 'paket-mode)
   (setq mode-name "Paket")
   (use-local-map paket-mode-map)

@@ -64,7 +64,6 @@
 
 (defun paket--make-temp-buffer (callback-with-buffer)
   "Create a temp buffer and call 'callback-with-buffer' to init its contents."
-  (interactive)
   (save-excursion
     (let ((buffer (get-buffer-create "*PAKET*")))
       (with-current-buffer buffer
@@ -354,6 +353,7 @@ it cannot be found, we ask the user."
 
 ;;;###autoload
 (defun paket-bootstrap ()
+  "Bootstrap a project by downloading the Paket bootstrapper and running it to install paket.exe"
   (interactive)
   (let* ((project-root (paket--find-project-root))
          (paket-root (concat (file-name-as-directory project-root) paket-exe-directory))

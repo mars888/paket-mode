@@ -17,6 +17,7 @@ Provides a major mode for using Paket on Emacs. Paket is a dependency manager fo
 
 ## Usage and default keybindings
 | Command                 | Key     | Action                                                                   |
+| ----------------------- | ------- | ------------------------------------------------------------------------ |
 | paket-run               | C-c C-r | Run the paket.exe executable with a given command line.                  |
 | paket-add               | C-c C-a | Add a package to paket.dependencies.                                     |
 | paket-restore           | C-c C-o | Restore package by running paket restore.                                |

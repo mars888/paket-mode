@@ -4,7 +4,7 @@
 
 ;; Author:  <M. Strik>
 ;; Keywords: processes, languages
-;; Version: 0.1
+;; Version: 0.2
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -99,6 +99,8 @@ it cannot be found, we ask the user."
   (let ((bounds (bounds-of-thing-at-point 'word)))
     (buffer-substring-no-properties (car bounds) (cdr bounds))))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bootstrapping
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -124,6 +126,8 @@ it cannot be found, we ask the user."
   (let ((cmd (format "curl -L \"%s\" -o \"%s\"" paket-bootstrapper-url target-location)))
     (with-temp-message (format "Downloading: %s" cmd)
       (shell-command cmd))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Executing paket
@@ -211,6 +215,8 @@ it cannot be found, we ask the user."
   (let ((package (paket--package-at-point)))
     (paket--run "find-refs" "nuget" package)))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Nuget search functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -294,13 +300,7 @@ it cannot be found, we ask the user."
                (display-completion-list
                 (all-completions maxMatchResult packageList)
                 searchItem))
-             (message "Making completion list... %s" "done")))
-    ;; (message (pp packageList))
-    ;; (message (pp searchItem))
-    ;; (message (pp maxMatchResult))
-    ))
-
-;; FluentMigrator.Runner
+             (message "Making completion list... %s" "done")))))
 
 (defconst +paket-mode--dependencies--keywords+
   (list
@@ -409,4 +409,3 @@ it cannot be found, we ask the user."
   (run-hooks 'paket-mode-hook))
 
 (provide 'paket-mode)
-;; (provide 'paket-bootstrap)

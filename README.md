@@ -10,12 +10,31 @@ Provides a major mode for using Paket on Emacs. Paket is a dependency manager fo
 - Search NuGet for packages.
 
 ## Screenshots
-(TODO)
+![Highlighting paket.dependencies](https://raw.github.com/mars888/paket-mode/master/screenshot1.png)
+![Highlighting paket.lock](https://raw.github.com/mars888/paket-mode/master/screenshot2.png)
 
 ## Installation
 (TODO)
 
-## Usage and default keybindings
+## Configuration variables
+The variables listed below are available for configuring paket-mode:
+
+| Name                    | Description                                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
+| paket-bootstrapper-url  | URL where the paket.bootstrapper.exe executable should be downloaded from                      |
+| paket-exe-directory     | Project relative directory where the Paket executables should be stored. Defaults to ".paket"  |
+| paket-bootstrapper-exe  | Executable name of the Paket bootstraper executable, defaults to "paket.bootstrapper.exe"      |
+| paket-exe               | Executable name of the main Paket executable, defaults to "paket.exe"                          |
+
+## Usage
+**Note:** The Paket executable has to be run with respect to a certain project directory. Paket-mode currently
+uses a simple heuristic to determine what this directory should be. To start with, paket-mode tries
+to find a Visual Studio solution file in one of the parent directories of the file in the current buffer.
+If a solution file (ending with .sln) is found, paket-mode uses the directory of the file as the project root.
+If paket-mode can find no such file, the user is asked to enter the project directory manually. This directory
+is currently not cached between executing commands.
+
+### Commands and default keybindings
 | Command                 | Key     | Action                                                                   |
 | ----------------------- | ------- | ------------------------------------------------------------------------ |
 | paket-run               | C-c C-r | Run the paket.exe executable with a given command line.                  |
@@ -28,3 +47,14 @@ Provides a major mode for using Paket on Emacs. Paket is a dependency manager fo
 | paket-bootstrap         |         | Download the paket bootstrapper and run it to get the latest paket.exe.  |
 | paket-edit-dependencies |         | Open paket.dependencies for editing.                                     |
 | paket-edit-lock         |         | Open paket.lock for editing.                                             |
+
+### Adding Paket to a project
+To initialize a new project for usage with Paket, run the `paket-bootstrap` command. When this command
+is executed outside of an existing project directory, paket-mode asks for the root directory of the
+project. After the root directory has been entered, paket-mode will try to download the paket.bootstrapper.exe
+executable, the location of which is defined by `paket-bootstrapper-url`. After downloading the bootstrapper
+paket-mode will run it to get the latest Paket executable.
+
+To setup a basic Paket file after bootstrapping, run `paket-init`.
+
+To add a package to the project, open the created paket.dependencies file and run `paket-add`.

@@ -21,10 +21,10 @@ The variables listed below are available for configuring paket-mode:
 
 | Name                    | Description                                                                                    |
 | ----------------------- | ---------------------------------------------------------------------------------------------- |
-| paket-bootstrapper-url  | URL where the paket.bootstrapper.exe executable should be downloaded from                      |
-| paket-exe-directory     | Project relative directory where the Paket executables should be stored. Defaults to ".paket"  |
-| paket-bootstrapper-exe  | Executable name of the Paket bootstraper executable, defaults to "paket.bootstrapper.exe"      |
-| paket-exe               | Executable name of the main Paket executable, defaults to "paket.exe"                          |
+| paket-bootstrapper-url  | URL where the paket.bootstrapper.exe executable should be downloaded from.                     |
+| paket-exe-directory     | Project relative directory where the Paket executables should be stored. Defaults to ".paket". |
+| paket-bootstrapper-exe  | Executable name of the Paket bootstraper executable, defaults to "paket.bootstrapper.exe".     |
+| paket-exe               | Executable name of the main Paket executable, defaults to "paket.exe".                         |
 
 ## Usage
 **Note:** The Paket executable has to be run with respect to a certain project directory. Paket-mode currently

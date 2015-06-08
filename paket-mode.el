@@ -343,7 +343,7 @@ to enter the project root once."
    ;; Property keywords.
    '("\\<\\(REDIRECTS\\|framework\\|FRAMEWORK\\|remote\\|specs\\|NUGET\\)\\>" . font-lock-keyword-face)
    ;; Value keywords.
-   '("\\<\\(net45\\|portable\\|wp80\\|win\\|wp81\\|wpa81\\|on\\|off\\|true\\|false\\)\\>" . font-lock-variable-name-face)
+   '("\\<\\(winv4\\.5\\|wpv8\\.0\\|portable-win81\\|net45\\|portable\\|wp80\\|win\\|wp81\\|wpa81\\|on\\|off\\|true\\|false\\)\\>" . font-lock-variable-name-face)
    ;; Package names
    '("^\s+\\([a-zA-Z0-9-]+\\)\\(\\.\\([a-zA-Z0-9-]\\)+\\)*" . font-lock-constant-face)
    ;; Package version specifiers.

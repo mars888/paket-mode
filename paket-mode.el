@@ -80,10 +80,11 @@
     (set-text-properties s (point) `(face ,face))))
 
 (defun paket--find-project-root-ask ()
-  "Ask the user for the project root"
+  "Ask the user for the project root directly, called from `paket--find-project-root'"
   (read-directory-name "Root of project: "))
+
 (defun paket--find-project-root ()
-  "Try to find the root folder of a project by searching for a .sln file. If
+  "Try to find the root folder of a Paket project by searching for a .sln file. If
 it cannot be found, we ask the user."
   (if (not (buffer-file-name))
       (paket--find-project-root-ask)
@@ -91,6 +92,18 @@ it cannot be found, we ask the user."
                                 (lambda (directory)
                                   (directory-files directory nil "\\.sln\\'")))
         (paket--find-project-root-ask))))
+
+(defvar paket--dynamic-project-root-binding nil
+  "Global symbol used for dynamically binding the root project using `with-project-root'")
+
+(defmacro paket--with-project-root (project-root-var-name &rest body)
+  "Macro for getting the root of a Paket project. This macro is meant to make sure that
+when functions that require a project root call eachother, the user will only ever be asked
+to enter the project root once."
+  `(let* ((paket--dynamic-project-root-binding (or paket--dynamic-project-root-binding
+                                                 (paket--find-project-root)))
+          (,project-root-var-name (file-name-as-directory paket--dynamic-project-root-binding)))
+     ,@body))
 
 (defun paket--package-at-point ()
   "Identify the package at-point an return it as a string"
@@ -134,47 +147,48 @@ it cannot be found, we ask the user."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun paket--find-paket-exe ()
   "Try to locate paket.exe"
-  (let* ((project-root (paket--find-project-root))
-         (paket-root (concat (file-name-as-directory project-root) paket-exe-directory))
-         (paket-exe (concat (file-name-as-directory paket-root) paket-exe)))
-    (if (file-exists-p paket-exe)
-        paket-exe
-      (error "Could not locate paket executable (perhaps run paket-bootstrap first?): %s" paket-exe))))
+  (paket--with-project-root project-root
+                            (let* ((paket-root (concat (file-name-as-directory project-root) paket-exe-directory))
+                                   (paket-exe (concat (file-name-as-directory paket-root) paket-exe)))
+                              (if (file-exists-p paket-exe)
+                                  paket-exe
+                                (error "Could not locate paket executable (perhaps run paket-bootstrap first?): %s" paket-exe)))))
 
 (defun paket-edit-dependencies ()
   "Open paket.dependencies for editing"
   (interactive)
-  (let* ((project-root (paket--find-project-root))
-         (dep-file (concat (file-name-as-directory project-root) "paket.dependencies")))
-    (if (file-exists-p dep-file)
-        (find-file dep-file)
-      (error "File does not exist, use paket-init to create it: %s" dep-file))))
+  (paket--with-project-root project-root
+                            (let* ((dep-file (concat (file-name-as-directory project-root) "paket.dependencies")))
+                              (if (file-exists-p dep-file)
+                                  (find-file dep-file)
+                                (error "File does not exist, use paket-init to create it: %s" dep-file)))))
 
 (defun paket-edit-lock ()
   "Open paket.lock for editing and perusal"
   (interactive)
-  (let* ((project-root (paket--find-project-root))
-         (lock-file (concat (file-name-as-directory project-root) "paket.lock")))
-    (if (file-exists-p lock-file)
-        (find-file lock-file)
-      (error "File does not exist: %s" lock-file))))
+  (paket--with-project-root project-root
+                            (let* ((lock-file (concat (file-name-as-directory project-root) "paket.lock")))
+                              (if (file-exists-p lock-file)
+                                  (find-file lock-file)
+                                (error "File does not exist: %s" lock-file)))))
 
 (defun paket--run (&rest args)
   "Run a paket command for a project."
-  (let ((project-root (paket--find-project-root))
-        (paket-exe (paket--find-paket-exe)))
-    (let ((default-directory project-root)) ; List of args, concatenate.
-      (paket--make-temp-buffer
-       (lambda (buffer)
-         (with-current-buffer buffer
-           (let ((inhibit-read-only t))
-             (insert (format "Running: %s %s\n\n" paket-exe args))
-             (set-process-sentinel
-              (apply 'start-process (append (list "paket" buffer paket-exe)
-                                            args))
-              (lambda (proc event)
-                (message "PAKET: %s - %s" proc event)
-                (reposition-window))))))))))
+  `(message "PR2: %s" ,paket--dynamic-project-root-binding)
+  (paket--with-project-root project-root
+                            (let ((paket-exe (paket--find-paket-exe)))
+                              (let ((default-directory project-root)) ; List of args, concatenate.
+                                (paket--make-temp-buffer
+                                 (lambda (buffer)
+                                   (with-current-buffer buffer
+                                     (let ((inhibit-read-only t))
+                                       (insert (format "Running: %s %s\n\n" paket-exe args))
+                                       (set-process-sentinel
+                                        (apply 'start-process (append (list "paket" buffer paket-exe)
+                                                                      args))
+                                        (lambda (proc event)
+                                          (message "PAKET: %s - %s" proc event)
+                                          (reposition-window)))))))))))
 
 (defun paket-run (args)
   "Run a raw paket command for a project."
@@ -186,13 +200,16 @@ it cannot be found, we ask the user."
 (defun paket-init ()
   "Run paket init for a project to create the paket.dependencies file."
   (interactive)
-  (let* ((project-root (paket--find-project-root))
-         (dep-file (concat (file-name-as-directory project-root) "paket.dependencies")))
-    (when (y-or-n-p (format "Create paket.dependencies in %s?" project-root))
-      (paket--run "init"))
-    (when (and (y-or-n-p (format "Open file for editing? %s" dep-file))
-               (file-exists-p dep-file))
-      (find-file dep-file))))
+  (paket--with-project-root project-root
+                            (message "PR1: %s" project-root)
+                            (let* ((dep-file (concat (file-name-as-directory project-root) "paket.dependencies")))
+                              (when (y-or-n-p (format "Run paket init in %s?" project-root))
+                                (paket--run "init"))
+                              ;; Following doesn't run with async execution, need to device better method.
+                              ;;(when (and (y-or-n-p (format "Open file for editing? %s" dep-file))
+                                         ;;(file-exists-p dep-file))
+                              ;;(find-file dep-file))
+                              )))
 
 (defun paket-add (package-name)
   "Run paket add for the given package name."
@@ -355,24 +372,24 @@ it cannot be found, we ask the user."
 (defun paket-bootstrap ()
   "Bootstrap a project by downloading the Paket bootstrapper and running it to install paket.exe"
   (interactive)
-  (let* ((project-root (paket--find-project-root))
-         (paket-root (concat (file-name-as-directory project-root) paket-exe-directory))
-         (paket-bootstrapper-exe (concat (file-name-as-directory paket-root) paket-bootstrapper-exe)))
-    ;; Check for existance of paket root.
-    (when (not (file-exists-p paket-root))
-      (if (y-or-n-p (format "Directory doesn't exist, create? %s" paket-root))
-          (make-directory paket-root)
-        (error "Can't continue, directory doesn't exist")))
-    ;; Check for existance of bootstrapper.
-    (when (not (file-exists-p paket-bootstrapper-exe))
-      (if (y-or-n-p (format "Bootsrapper not present, download from %s?" paket-bootstrapper-url))
-          (paket--download-bootstrapper paket-bootstrapper-exe)
-        (error (format "Can't continue, bootstrapper not found %s" paket-bootstrapper-exe))))
-    (if (y-or-n-p (format "Ok to run bootstrapper? %s" paket-bootstrapper-exe))
-        (paket--make-temp-buffer
-         (lambda (buffer)
-           (shell-command paket-bootstrapper-exe buffer buffer)))
-      (error "Did not run bootstrapper"))))
+  (paket--with-project-root project-root
+                            (let* ((paket-root (concat (file-name-as-directory project-root) paket-exe-directory))
+                                   (paket-bootstrapper-exe (concat (file-name-as-directory paket-root) paket-bootstrapper-exe)))
+                              ;; Check for existance of paket root.
+                              (when (not (file-exists-p paket-root))
+                                (if (y-or-n-p (format "Directory doesn't exist, create? %s" paket-root))
+                                    (make-directory paket-root)
+                                  (error "Can't continue, directory doesn't exist")))
+                              ;; Check for existance of bootstrapper.
+                              (when (not (file-exists-p paket-bootstrapper-exe))
+                                (if (y-or-n-p (format "Bootsrapper not present, download from %s?" paket-bootstrapper-url))
+                                    (paket--download-bootstrapper paket-bootstrapper-exe)
+                                  (error (format "Can't continue, bootstrapper not found %s" paket-bootstrapper-exe))))
+                              (if (y-or-n-p (format "Ok to run bootstrapper? %s" paket-bootstrapper-exe))
+                                  (paket--make-temp-buffer
+                                   (lambda (buffer)
+                                     (shell-command paket-bootstrapper-exe buffer buffer)))
+                                (error "Did not run bootstrapper")))))
 
 (defvar paket-mode-map
   (let ((map (make-keymap)))

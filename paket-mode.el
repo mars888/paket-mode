@@ -174,7 +174,6 @@ to enter the project root once."
 
 (defun paket--run (&rest args)
   "Run a paket command for a project."
-  `(message "PR2: %s" ,paket--dynamic-project-root-binding)
   (paket--with-project-root project-root
                             (let ((paket-exe (paket--find-paket-exe)))
                               (let ((default-directory project-root)) ; List of args, concatenate.
@@ -201,7 +200,6 @@ to enter the project root once."
   "Run paket init for a project to create the paket.dependencies file."
   (interactive)
   (paket--with-project-root project-root
-                            (message "PR1: %s" project-root)
                             (let* ((dep-file (concat (file-name-as-directory project-root) "paket.dependencies")))
                               (when (y-or-n-p (format "Run paket init in %s?" project-root))
                                 (paket--run "init"))
